@@ -1,12 +1,21 @@
 // components/ExperienciaForm.js
 import { useState, useEffect } from 'react';
 
-export default function ExperienciaForm({ onSubmit }) {
+export default function ExperienciaForm({ onSubmit, experiencia }) {
   const [description, setDescription] = useState('');
   const [owner, setOwner] = useState('');
   const [participants, setParticipants] = useState([]);
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  //codi afegit
+  useEffect(() => {
+    if (experiencia) {
+      setDescription(experiencia.description || '');
+      setOwner(experiencia.owner || '');
+      setParticipants(experiencia.participants || []);
+    }
+  }, [experiencia]);
+
 
   // Fetch de los usuarios disponibles desde la API
   useEffect(() => {
@@ -31,11 +40,12 @@ export default function ExperienciaForm({ onSubmit }) {
     // Verificación de que al menos la descripción y el dueño estén completos
     if (description && owner) {
       const newExperiencia = {
+        ...experiencia,
         description,
         owner,
         participants,
       };
-      onSubmit(newExperiencia); // Llama a onSubmit para añadir experiencia
+      onSubmit(newExperiencia); // Llama a onSubmit para añadir o actualizar experiencia
     } else {
       alert('Debes completar todos los campos');
     }
@@ -45,10 +55,10 @@ export default function ExperienciaForm({ onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2-form>Lista de Experiencias</h2-form>
+      <h2>Lista de Experiencias</h2>
       <div>
         <label>Descripción de la experiencia:</label>
-        <input className='formdiv'
+        <input 
           type="text" 
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -57,7 +67,7 @@ export default function ExperienciaForm({ onSubmit }) {
       
       <div>
         <label>Seleccionar dueño:</label>
-        <select className='formdiv' value={owner} onChange={(e) => setOwner(e.target.value)}>
+        <select value={owner} onChange={(e) => setOwner(e.target.value)}>
           <option value="">--Selecciona un usuario--</option>
           {users.map((user) => (
             <option key={user._id} value={user._id}>
@@ -69,8 +79,8 @@ export default function ExperienciaForm({ onSubmit }) {
 
       <div>
         <label>Seleccionar participantes:</label>
-        <select className='formdiv' multiple value={participants} onChange={(e) => {
-          const selectedParticipants = Array.from(e.target.selectedOptions, option => option.value);
+        <select multiple value={participants} onChange={(e) => {
+          const selectedParticipants = Array.from(e.target.selectedOptions, (option) => option.value);
           setParticipants(selectedParticipants);
         }}>
           {users.map((user) => (
@@ -81,7 +91,7 @@ export default function ExperienciaForm({ onSubmit }) {
         </select>
       </div>
 
-      <button type="submit">Crear Experiencia</button>
+      <button type="submit">{experiencia ? 'Actualizar experiencia' : 'Crear Experiencia'}</button>
     </form>
   );
 }

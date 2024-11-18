@@ -7,6 +7,7 @@ export default function Experiencias() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const URL = "http://localhost:3000/api/experiencias"
+  
   useEffect(() => {
     setLoading(true);
     const fetchExperiencias = async () => {
@@ -62,15 +63,35 @@ export default function Experiencias() {
         console.error(err);
       }
   };
+  //Afegim la funció per modificar experiencies
+  const handleUpdateExperience = async (updatedExperience) => {
+    try {
+      const response = await fetch(`${URL}/${updatedExperience._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedExperience),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar la experiencia');
+      }
+      const data = await response.json();
+      setExperiencias(experiencias.map(exp => (exp._id === data._id ? data : exp))); // Actualiza la lista
+      fetchExperiencias();
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
 
   return (
     <div className="form-container">
-      <h2-form>Gestión de Experiencias</h2-form>
+      <h2>Gestión de Experiencias</h2>
       {loading && <p>Cargando experiencias...</p>}
       {error && <p>Error: {error}</p>}
       {!loading && !error && (
         <>
-          <ExperienciaList experiencias={experiencias} onDeleteExperience={handleDeleteExperience} />
+          <ExperienciaList experiencias={experiencias} onDeleteExperience={handleDeleteExperience} onUpdateExperience={handleUpdateExperience}  />
           <ExperienciaForm onSubmit={handleExperienciaSubmit} />
         </>
       )}
